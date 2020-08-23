@@ -264,7 +264,7 @@ person.Attributes.Add(attributes);
 
 ## Unstructured data in messages
 
-Protobuf is a contract-first messaging format, and an apps messages need to be specified in *.proto* files when the app is compiled. Protobuf offers features and well known types to support unstructured data and unknown message types.
+Protobuf is a contract-first messaging format, and an apps messages need to be specified in *.proto* files when the app is compiled. Protobuf offers language features and well known types to support unstructured data and unknown message types.
 
 ### Any
 
