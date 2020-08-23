@@ -61,7 +61,7 @@ The preceding code configures a channel that sends a keep alive ping to the serv
 
 In high-performance scenarios gRPC bidirectional streaming calls can be used to replace unary gRPC calls. Once a streaming call has started, streaming messages back and forth is faster than sending messages with multiple unary gRPC calls. Streaming messages involves sending data on an existing HTTP/2 request and eliminates the overhead of creating a new HTTP/2 request for each unary call.
 
-Example server:
+Example service:
 
 ```csharp
 public override async Task SayHello(IAsyncStreamReader<HelloRequest> requestStream,
@@ -74,7 +74,6 @@ public override async Task SayHello(IAsyncStreamReader<HelloRequest> requestStre
         await responseStream.WriteAsync(helloReply);
     }
 }
-
 ```
 
 Example client:
@@ -88,7 +87,7 @@ while (true)
 {
     var text = Console.ReadLine();
 
-    // Send and receive messages with stream
+    // Send and receive messages over the stream
     await call.RequestStream.WriteAsync(new HelloRequest { Name = text });
     await call.ResponseStream.MoveNext();
 
@@ -96,4 +95,4 @@ while (true)
 }
 ```
 
-Replacing unary calls with bidirectional streaming is an advanced technique and is not appropriate in many situations. It should only be considered if gRPC is identified as a performance bottleneck in an app.
+Replacing unary calls with bidirectional streaming is an advanced technique and is not appropriate in many situations. Consider using it in an app if gRPC is identified as a performance bottleneck.
