@@ -67,7 +67,7 @@ Protobuf supports a range of native scalar value types. The following table list
 
 ### Dates and times
 
-The native scalar types don't provide for date and time values, equivalent to .NET's <xref:System.DateTimeOffset>, <xref:System.DateTime>, and <xref:System.TimeSpan>. You can specify these types by using some of Google's "Well Known Types" extensions. These extensions provide code generation and runtime support for complex field types across the supported platforms.
+The native scalar types don't provide for date and time values, equivalent to .NET's <xref:System.DateTimeOffset>, <xref:System.DateTime>, and <xref:System.TimeSpan>. You can specify these types by using some of Protobuf's "Well Known Types" extensions. These extensions provide code generation and runtime support for complex field types across the supported platforms.
 
 The following table shows the date and time types:
 
@@ -212,7 +212,7 @@ message Person {
 }
 ```
 
-In the generated code, `repeated` fields are represented by the `Google.Protobuf.Collections.RepeatedField<T>` generic type. `RepeatedField<T>` implements all the standard .NET collection interfaces, such as <xref:System.Collections.Generic.IList%601> and <xref:System.Collections.Generic.IEnumerable%601>. So you can use LINQ queries or convert it to an array or a list easily.
+In the generated code, `repeated` fields are represented by the `Google.Protobuf.Collections.RepeatedField<T>` generic type.
 
 ```csharp
 public class Person
@@ -222,7 +222,7 @@ public class Person
 }
 ```
 
-`RepeatedField<T>` properties don't have a public setter. Items should be added to the existing collection.
+`RepeatedField<T>` implements <xref:System.Collections.Generic.IList%601>. So you can use LINQ queries or convert it to an array or a list easily. `RepeatedField<T>` properties don't have a public setter. Items should be added to the existing collection.
 
 ```csharp
 var person = new Person();
@@ -237,7 +237,7 @@ person.Roles.Add(roles);
 
 ### Dictionaries
 
-The .NET <xref:System.Collections.Generic.IDictionary%602> type is represented in Protobuf using the `map<key_type, value_type>`.
+The .NET <xref:System.Collections.Generic.IDictionary%602> type is represented in Protobuf using `map<key_type, value_type>`.
 
 ```protobuf
 message Person {
@@ -262,13 +262,13 @@ var attributes = new Dictionary<string, string>
 person.Attributes.Add(attributes);
 ```
 
-## Unstructured data
+## Unstructured data in messages
 
-Protobuf is a contract-first messaging format, and messages need to be specified in *.proto* files when the app is compiled. Protobuf offers some features and well known types to support unknown messages and unstructured data in messages.
+Protobuf is a contract-first messaging format, and an apps messages need to be specified in *.proto* files when the app is compiled. Protobuf offers features and well known types to support unstructured data and unknown message types.
 
 ### Any
 
-The `Any` type lets you use messages as embedded types without having their *.proto* definition. To use the Any type, you need to import `google/protobuf/any.proto`.
+The `Any` type lets you use messages as embedded types without having their *.proto* definition. To use the `Any` type, you need to import `any.proto`.
 
 ```protobuf
 import "google/protobuf/any.proto";
@@ -292,12 +292,53 @@ if (status.Detail.Is(Person.Descriptor))
 }
 ```
 
-### Value
+## Oneof
 
-The `Value` type represents a dynamically typed value. It can be either null, a number, a string, a boolean, a dictionary of values (`Struct`), or a list of values (`ValueList`).
+Oneof fields are a language feature: the compiler handles the `oneof` keyword when it generates the message class. Using `oneof` to specify a response message could either result a `Person` or `Error` might look like this:
 
 ```protobuf
-import "google/protobuf/value.proto";
+message Person {
+    // ...
+}
+
+message Error {
+    // ...
+}
+
+message ResponseMessage {
+  oneof result {
+    Error error = 1;
+    Person person = 2;
+  }
+}
+```
+
+Fields within the `oneof` set must have unique field numbers in the overall message declaration.
+
+When you use `oneof`, the generated C# code includes an enum that specifies which of the fields has been set. You can test the enum to find which field is set. Fields that aren't set return `null` or the default value, rather than throwing an exception.
+
+```csharp
+var response = client.GetPersonAsync(new RequestMessage());
+
+switch (response.ResultCase)
+{
+    case ResponseMessage.ResultOneofCase.Person:
+        HandlePerson(response.Person);
+        break;
+    case ResponseMessage.ResultOneofCase.Error:
+        HandleError(response.Error);
+        break;
+    default:
+        throw new ArgumentException("Unexpected result.");
+}
+```
+
+### Value
+
+The `Value` type represents a dynamically typed value. `Value` is a well known type that uses `oneof`. It can be either null, a number, a string, a boolean, a dictionary of values (`Struct`), or a list of values (`ValueList`). To use the `Value` type, you need to import `struct.proto`.
+
+```protobuf
+import "google/protobuf/struct.proto";
 
 message Status {
     // ...
