@@ -337,7 +337,7 @@ switch (response.ResultCase)
 
 ### Value
 
-The `Value` type represents a dynamically typed value. `Value` is a well known type that uses `oneof`. It can be either null, a number, a string, a boolean, a dictionary of values (`Struct`), or a list of values (`ValueList`). To use the `Value` type, you need to import `struct.proto`.
+The `Value` type represents a dynamically typed value. It can be either null, a number, a string, a boolean, a dictionary of values (`Struct`), or a list of values (`ValueList`). `Value` is a well known type uses the previously discussed `oneof` feature. To use the `Value` type, you need to import `struct.proto`.
 
 ```protobuf
 import "google/protobuf/struct.proto";
