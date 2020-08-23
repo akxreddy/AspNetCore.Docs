@@ -16,7 +16,7 @@ gRPC uses Protobuf as its interface definition language (IDL). Protobuf is a lan
 
 Messages are the main data transfer object in Protobuf. They are conceptually similar to .NET classes.
 
-```proto
+```protobuf
 syntax = "proto3";
 
 option csharp_namespace = "Contoso.Messages";
@@ -67,11 +67,11 @@ Protobuf supports a range of native scalar value types. The following table list
 
 ### Dates and times
 
-The native scalar types don't provide for date and time values, equivalent to C#'s <xref:System.DateTimeOffset>, <xref:System.DateTime>, and <xref:System.TimeSpan>. You can specify these types by using some of Google's "Well Known Types" extensions. These extensions provide code generation and runtime support for complex field types across the supported platforms.
+The native scalar types don't provide for date and time values, equivalent to .NET's <xref:System.DateTimeOffset>, <xref:System.DateTime>, and <xref:System.TimeSpan>. You can specify these types by using some of Google's "Well Known Types" extensions. These extensions provide code generation and runtime support for complex field types across the supported platforms.
 
 The following table shows the date and time types:
 
-| C# type | Protobuf well-known type |
+| .NET type | Protobuf well-known type |
 | ------- | ------------------------ |
 | `DateTimeOffset` | `google.protobuf.Timestamp` |
 | `DateTime` | `google.protobuf.Timestamp` |
@@ -264,13 +264,13 @@ person.Attributes.Add(attributes);
 
 ## Unstructured data
 
-Protobuf is a contract-first messaging format, and messages need to be specified in *.proto* files when the app is compiled. Protobuf offers some features to support unknown messages and unstructured data in messages.
+Protobuf is a contract-first messaging format, and messages need to be specified in *.proto* files when the app is compiled. Protobuf offers some features and well known types to support unknown messages and unstructured data in messages.
 
 ### Any
 
 The `Any` type lets you use messages as embedded types without having their *.proto* definition. To use the Any type, you need to import `google/protobuf/any.proto`.
 
-```proto
+```protobuf
 import "google/protobuf/any.proto";
 
 message Status {
@@ -296,7 +296,7 @@ if (status.Detail.Is(Person.Descriptor))
 
 The `Value` type represents a dynamically typed value. It can be either null, a number, a string, a boolean, a dictionary of values (`Struct`), or a list of values (`ValueList`).
 
-```proto
+```protobuf
 import "google/protobuf/value.proto";
 
 message Status {
