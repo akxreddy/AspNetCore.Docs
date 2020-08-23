@@ -12,7 +12,7 @@ uid: grpc/performance
 
 gRPC is designed for high-performance services. This document explains how to get the best performance possible from gRPC.
 
-## Reuse client channel
+## Reuse channel
 
 A gRPC channel should be reused when making gRPC calls. Reusing a channel allows calls to be multiplexed through an existing HTTP/2 connection.
 
