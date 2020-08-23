@@ -59,7 +59,7 @@ The preceding code configures a channel that sends a keep alive ping to the serv
 
 ## Streaming
 
-In high-performance scenarios gRPC bidirectional streaming calls can be used to replace unary gRPC calls. Once a streaming call has started, streaming messages back and forth is faster than sending messages with multiple unary gRPC calls. Streaming messages involves sending data on an existing HTTP/2 request and eliminates the overhead of creating a new HTTP/2 request for each unary call.
+In high-performance scenarios gRPC bidirectional streaming calls can be used to replace unary gRPC calls. Once a streaming call has started, streaming messages back and forth is faster than sending messages with multiple unary gRPC calls. Streamed messages are sent as data on an existing HTTP/2 request and eliminates the overhead of creating a new HTTP/2 request for each unary call.
 
 Example service:
 
