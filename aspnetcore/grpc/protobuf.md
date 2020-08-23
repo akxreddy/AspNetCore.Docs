@@ -262,9 +262,9 @@ var attributes = new Dictionary<string, string>
 person.Attributes.Add(attributes);
 ```
 
-## Unstructured data in messages
+## Unstructured and conditional messages
 
-Protobuf is a contract-first messaging format, and an apps messages need to be specified in *.proto* files when the app is compiled. Protobuf offers language features and well known types to support unstructured data and unknown message types.
+Protobuf is a contract-first messaging format, and an apps messages need to be specified in *.proto* files when the app is compiled. For advanced scenarios, Protobuf offers language features and well known types to support conditional and unknown message.
 
 ### Any
 
@@ -292,9 +292,9 @@ if (status.Detail.Is(Person.Descriptor))
 }
 ```
 
-## Oneof
+### Oneof
 
-Oneof fields are a language feature: the compiler handles the `oneof` keyword when it generates the message class. Using `oneof` to specify a response message could either result a `Person` or `Error` might look like this:
+Oneof fields are a language feature: the compiler handles the `oneof` keyword when it generates the message class. Using `oneof` to specify a response message that could either return a `Person` or `Error` might look like this:
 
 ```protobuf
 message Person {
