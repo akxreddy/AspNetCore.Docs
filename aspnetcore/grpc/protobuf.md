@@ -30,7 +30,7 @@ message Person {
 
 The preceding message definition specifies three fields (name/value pairs). Like properties on .NET types, each field has a name and a type.
 
-In addition to a name, each field in the message definition has a unique number. Field numbers are used to identify fields when the message is serialized to Protobuf. Serializing a small number is faster than serializing the entire field name. Because field numbers identify a field it is important to take care when changing them. For more information about versioning Protobuf messages see <xref:grpc/versioning>.
+In addition to a name, each field in the message definition has a unique number. Field numbers are used to identify fields when the message is serialized to Protobuf. Serializing a small number is faster than serializing the entire field name. Because field numbers identify a field it is important to take care when changing them. For more information about changing Protobuf messages see <xref:grpc/versioning>.
 
 When an app is built the Protobuf tooling generates .NET types from *.proto* files. The `Person` message generates a .NET class:
 
