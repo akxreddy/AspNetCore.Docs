@@ -12,11 +12,11 @@ uid: grpc/performance
 
 gRPC is designed for high-performance services. This document explains how to get the best performance possible from gRPC.
 
-## Client channel
+## Reuse client channel
 
 A gRPC channel should be reused when making gRPC calls. Reusing a channel allows calls to be multiplexed through an existing HTTP/2 connection.
 
-If a new channel is created for each gRPC call then the amount of time it takes for the call to complete can increase significantly. Each call will require multiple network round-trips between the client and the server to create a HTTP/2 connection:
+If a new channel is created for each gRPC call then the amount of time it takes to complete can increase significantly. Each call will require multiple network round-trips between the client and the server to create a HTTP/2 connection:
 
 1. Opening a socket
 2. Establishing TCP connection
@@ -31,14 +31,16 @@ Channels are safe to share and reuse between gRPC calls:
 * A channel and clients created from the channel can safely be used by multiple threads.
 * Clients created from the channel can make multiple simultaneous calls.
 
+::: moniker range=">= aspnetcore-5.0"
+
 ## Keep alive pings
 
 Keep alive pings can be used to keep HTTP/2 connections alive during periods of inactivity. Having an existing HTTP/2 connection ready when an app resumes activity allows for the initial gRPC calls to be made quickly, without a delay caused by the connection being reestablished.
 
-Keep alive pings are configured on `SocketsHttpHandler`:
+Keep alive pings are configured on <xref:System.Net.Http.SocketsHttpHandler>:
 
 ```csharp
-var socketsHttpHandler = new SocketsHttpHandler
+var handler = new SocketsHttpHandler
 {
     PooledConnectionIdleTimeout = Timeout.InfiniteTimeSpan,
     KeepAlivePingDelay = TimeSpan.FromSeconds(60),
@@ -47,17 +49,19 @@ var socketsHttpHandler = new SocketsHttpHandler
 
 var channel = GrpcChannel.ForAddress("https://localhost:5001", new GrpcChannelOptions
 {
-    HttpHandler = socketsHttpHandler
+    HttpHandler = handler
 });
 ```
 
-The preceding code configures a channel that sends a keep alive ping to the server every 60 seconds during periods of inactivity. The ping will ensure the server and any proxies in use will not close the connection because of inactivity.
+The preceding code configures a channel that sends a keep alive ping to the server every 60 seconds during periods of inactivity. The ping will ensure the server and any proxies in use won't close the connection because of inactivity.
+
+::: moniker-end
 
 ## Streaming
 
 In high-performance scenarios gRPC bidirectional streaming calls can be used to replace unary gRPC calls. Once a streaming call has started, streaming messages back and forth is faster than sending messages with multiple unary gRPC calls. Streaming messages involves sending data on an existing HTTP/2 request and eliminates the overhead of creating a new HTTP/2 request for each unary call.
 
-Server:
+Example server:
 
 ```csharp
 public override async Task SayHello(IAsyncStreamReader<HelloRequest> requestStream,
@@ -73,7 +77,7 @@ public override async Task SayHello(IAsyncStreamReader<HelloRequest> requestStre
 
 ```
 
-Client:
+Example client:
 
 ```csharp
 var client = new Greet.GreeterClient(channel);
@@ -83,24 +87,13 @@ Console.WriteLine("Type a name then press enter.");
 while (true)
 {
     var text = Console.ReadLine();
-    if (string.IsNullOrEmpty(text))
-    {
-        break;
-    }
 
+    // Send and receive messages with stream
     await call.RequestStream.WriteAsync(new HelloRequest { Name = text });
-
     await call.ResponseStream.MoveNext();
-    var response = call.ResponseStream.Current;
 
-    Console.WriteLine(response.Message);
+    Console.WriteLine($"Greeting: {call.ResponseStream.Current.Message}");
 }
-
-Console.WriteLine("Disconnecting");
-
-// Notify server that the client is complete
-await call.RequestStream.CompleteAsync();
-await call.ResponseStream.MoveNext();
 ```
 
 Replacing unary calls with bidirectional streaming is an advanced technique and is not appropriate in many situations. It should only be considered if gRPC is identified as a performance bottleneck in an app.
